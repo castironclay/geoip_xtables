@@ -1,32 +1,13 @@
 ---
-- name: Add host
-  add_host:
-    name: host
-    ansible_host: '{{ host_ip }}'
-    groups: 'geoip_hosts'
-    ansible_ssh_password: '{{ password }}'
-    ansible_user: '{{ username }}'
-    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-    ansible_python_interpreter: /usr/bin/python3
-
 - name: Update DNS
   become: yes
   shell: echo "nameserver 1.1.1.1" > /etc/resolv.conf
-  when: ansible_hostname == "host"
-
-
-- name: Install Aptitude
-  become: yes
-  apt:
-    name: aptitude
-  when: ansible_hostname == "host"
 
 - name: Update and upgrade apt packages
   become: yes
   apt:
     upgrade: yes
     update_cache: yes
-  when: ansible_hostname == "host"
 
 - name: Install Dependencies
   apt:
@@ -36,4 +17,26 @@
       - xtables-addons-common
       - libtext-csv-xs-perl
       - pkg-config
-  when: ansible_hostname == "host"
+
+- file:
+    path: ~/xtables
+    state: directory
+
+- name: Extract foo.tgz into /var/lib/foo
+  unarchive:
+    src: xtables.tar.xz
+    dest: ~/xtables
+
+# Setup for xtables version 3.2
+- name: Running configure
+  command: '"{{ item }}" chdir=~/xtables/xtables-addons-3.2'
+  with_items:
+    - ./configure
+
+- name: Running make
+  command: '"{{ item }}" chdir=~/xtables/xtables-addons-3.2'
+  with_items:
+    - make
+
+- name: Running make install
+  command: 'make install chdir=~/xtables/xtables-addons-3.2'

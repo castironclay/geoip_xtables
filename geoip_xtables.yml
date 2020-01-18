@@ -1,5 +1,0 @@
----
-- hosts: all
-  - name: Import role
-    include_role:
-      name: geoip_xtabales
