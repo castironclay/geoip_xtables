@@ -1,2 +1,39 @@
 ---
-# tasks file for geoip_xtables
+- name: Add host
+  add_host:
+    name: host
+    ansible_host: '{{ host_ip }}'
+    groups: 'geoip_hosts'
+    ansible_ssh_password: '{{ password }}'
+    ansible_user: '{{ username }}'
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Update DNS
+  become: yes
+  shell: echo "nameserver 1.1.1.1" > /etc/resolv.conf
+  when: ansible_hostname == "host"
+
+
+- name: Install Aptitude
+  become: yes
+  apt:
+    name: aptitude
+  when: ansible_hostname == "host"
+
+- name: Update and upgrade apt packages
+  become: yes
+  apt:
+    upgrade: yes
+    update_cache: yes
+  when: ansible_hostname == "host"
+
+- name: Install Dependencies
+  apt:
+    pkg:
+      - libnet-cidr-lite-perl
+      - iptables-dev
+      - xtables-addons-common
+      - libtext-csv-xs-perl
+      - pkg-config
+  when: ansible_hostname == "host"
