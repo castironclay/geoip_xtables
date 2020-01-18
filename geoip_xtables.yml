@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  tasks:
+  - include_role:
+      name: geoip_xtables
+  vars_prompt:
+      - name: "host_ip"
+        prompt: "IP address of host: "
+        private: no
+
+      - name: "username"
+        prompt: "Host username"
+        private: no
+
+      - name: "password"
+        prompt: "Host password"
+        private: no
+
+      - name: "port"
+        prompt: "SSH port: "
+        private: no
